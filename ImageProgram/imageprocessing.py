@@ -30,6 +30,7 @@ class Frame(QMainWindow):
     hbox = None # Vertical box to store labels
 
     # check box to check hsv
+    ckbox_mode = None
     ckbox_H = None
     ckbox_S = None
     ckbox_V = None
@@ -74,12 +75,15 @@ class Frame(QMainWindow):
         self.lbl_result_img.setPixmap(self.result_pixmap)
 
         # 체크 박스 초기화
+        self.ckbox_mode = QCheckBox('대입 모드')
+        self.ckbox_mode.toggle()
         self.ckbox_H = QCheckBox('H')
         self.ckbox_H.toggle()
         self.ckbox_S = QCheckBox('S')
         self.ckbox_V = QCheckBox('V')
 
         hbox_ckboxlist = QHBoxLayout()
+        hbox_ckboxlist.addWidget(self.ckbox_mode)
         hbox_ckboxlist.addWidget(self.ckbox_H)
         hbox_ckboxlist.addWidget(self.ckbox_S)
         hbox_ckboxlist.addWidget(self.ckbox_V)
@@ -152,33 +156,47 @@ class Frame(QMainWindow):
             pixels_dst = self.result_img.load()
             pixels_ori = self.origin_img.load()
 
-            rand_h, rand_v, rand_s = None, None, None
+            rand_h, rand_v, rand_s = 0, 0, 0
 
             if(self.ckbox_H.isChecked()):
-                rand_h = random.random()
+                rand_h = random.random() * 2 - 1
             if(self.ckbox_S.isChecked()):
-                rand_s = random.random()
+                rand_s = random.random() * 2 - 1
             if(self.ckbox_V.isChecked()):
-                rand_v = random.random()
+                rand_v = random.random() * 2 - 1
+
+            print(rand_h)
+            print(rand_s)
+            print(rand_v)
 
             for y in range(0, height):
                 for x in range(0, width):
                     color = pixels_ori[x, y]
                     hsv = pixel.rgb_to_hsv(color)
-                    hsv = pixel.modulate_hsv(hsv, h = rand_h, s = rand_s, v = rand_v)
+
+                    # 체크박스 모드에 따라 변조 방식을 자유롭게 설정하도록 할 것
+                    # 메뉴바에서 선택하는 것도 나쁘지 않을 듯
+                    if(self.ckbox_mode.isChecked()):
+                        hsv = pixel.modulate_hsv_assign(hsv, h = rand_h, s = rand_s, v = rand_v)
+                    else:
+                        hsv = pixel.modulate_hsv_plus(hsv, h = rand_h, s = rand_s, v = rand_v)
+
                     color = pixel.hsv_to_rgb(hsv)
                     pixels_dst[x, y] = tuple(color)
             self.setResultImage(self.result_img)
-            self.saveImage(int(hsv[1] * 100), int(hsv[2] * 100))
+
+            if(self.ckbox_mode.isChecked()):
+                self.saveImage((rand_h * 100) ,(rand_s * 100), (rand_v * 100), '대입 변조')
+            else:
+                self.saveImage((rand_h * 100) ,(rand_s * 100), (rand_v * 100), '더하기 변조')
         return True
 
-    def saveImage(self, S, V):
-        self.result_img.save('채도(' + str(S) + ')명도(' + str(V) +  ').png')
+    def saveImage(self, H, S, V, dec):
+        self.result_img.save('색상(%0.2f)채도(%0.2f)명도(%0.2f) %s.png' % (H, S, V, dec))
         return True
 
 def main(argv):
     app = QApplication(argv)
     frame = Frame()
     sys.exit(app.exec_())
-
     return True

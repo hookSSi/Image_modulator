@@ -11,13 +11,7 @@ def debug():
 
     hsv = pixel.rgb_to_hsv(pixels[1,1])
     rgb = pixel.hsv_to_rgb(hsv)
-
-    print(pixels[1,1])
-    print(hsv)
-    print(rgb)
-
+    print([e * 100 for e in hsv])
     return True
 
-if(__name__ == '__main__'):
-    debug()
-    imageprocessing.main(sys.argv)
+imageprocessing.main(sys.argv)

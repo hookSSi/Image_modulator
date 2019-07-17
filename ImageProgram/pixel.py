@@ -35,12 +35,20 @@ def rgb_to_hsv(p):
 
     return result
 
+def normalize(e):
+    if(e < 0):
+        return abs(e)
+    elif(e > 1):
+        return (e - 1)
+    else:
+        return e
+
 def hsv_to_rgb(p):
     r, g, b = 0, 0, 0
 
-    H = p[0]
-    S = p[1]
-    V = p[2]
+    H = normalize(p[0])
+    S = normalize(p[1])
+    V = normalize(p[2])
 
     C = V * S
     X = C * (1 - abs((H / PI_ONE_THIRD) % 2 - 1))
@@ -65,17 +73,32 @@ def hsv_to_rgb(p):
     return result
 
 # 지정한 부분만 랜덤화
-def modulate_hsv(p, h = None, s = None, v = None):
+def modulate_hsv_plus(p, h = None, s = None, v = None):
 
     H = p[0]
     S = p[1]
     V = p[2]
 
-    if(h):
+    if(h != 0):
+        H = H + h
+    if(s != 0):
+        S = S + s
+    if(v != 0):
+        V = V + v
+    result = (H, S, V)
+    return result
+
+def modulate_hsv_assign(p, h = None, s = None, v = None):
+
+    H = p[0]
+    S = p[1]
+    V = p[2]
+
+    if(h != 0):
         H = h
-    if(s):
+    if(s != 0):
         S = s
-    if(v):
+    if(v != 0):
         V = v
     result = (H, S, V)
     return result
