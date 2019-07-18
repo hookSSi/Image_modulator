@@ -37,16 +37,23 @@ def rgb_to_hsv(p):
 
 def normalize(e):
     if(e < 0):
-        return abs(e)
+        return abs(e) % 1.0
     elif(e > 1):
-        return (e - 1)
+        return (e % 1.0)
+    else:
+        return e
+def normalizeH(e):
+    if(e < 0):
+        return abs(e) % PI2
+    elif(e > PI2):
+        return (e % PI2)
     else:
         return e
 
 def hsv_to_rgb(p):
     r, g, b = 0, 0, 0
 
-    H = normalize(p[0])
+    H = normalizeH(p[0])
     S = normalize(p[1])
     V = normalize(p[2])
 
@@ -54,17 +61,17 @@ def hsv_to_rgb(p):
     X = C * (1 - abs((H / PI_ONE_THIRD) % 2 - 1))
     m = V - C
 
-    if(H < PI_ONE_THIRD):
+    if(H < PI_ONE_THIRD): # 0 <= H < 60
         r, g, b = C, X, 0
-    elif(PI_ONE_THIRD <= H and H < PI_TWO_THIRD):
+    elif(PI_ONE_THIRD <= H and H < PI_TWO_THIRD): # 60 <= H < 120
         r, g, b = X, C, 0
-    elif(PI_TWO_THIRD <= H and H < PI):
+    elif(PI_TWO_THIRD <= H and H < PI): # 120 <= H < 180
         r, g, b = 0, C, X
-    elif(PI <= H and H < PI_FOUR_THIRD):
+    elif(PI <= H and H < PI_FOUR_THIRD): # 180 <= H < 240
         r, g, b = 0, X, C
-    elif(PI_FOUR_THIRD <= H and H < PI_FIVE_THIRD):
+    elif(PI_FOUR_THIRD <= H and H < PI_FIVE_THIRD): # 240 <= H < 300
         r, g, b = X, 0, C
-    elif(PI_FIVE_THIRD <= H and H < PI2):
+    elif(PI_FIVE_THIRD <= H and H < PI2): # 300 <= H < 360
         r, g, b = C, 0, X
 
     r, g, b = (r+m)*255, (g+m)*255, (b+m)*255
